@@ -101,3 +101,26 @@ worktable/
 - 使用 HTTPS 与反代，限制请求频率以防暴力破解。
 - 定期备份 `server/data/db.json`。
 - 当前密码使用 Node 内置 `scrypt` 加盐哈希，未引入第三方加密库。
+
+## 📤 推送到 GitHub（首次部署）
+
+本仓库已 `git init` 并提交，远端 `origin` 指向 `https://github.com/QQYB-nn/myworkdesk.git`。
+由于运行环境屏蔽了对外 443 端口，推送需在你**自己的电脑终端**（PowerShell / Git Bash / CMD，需已装 git 且有网络）完成：
+
+```bash
+cd "C:\Users\62587\WorkBuddy\我的工作台\worktable"
+git push -u origin main --force
+```
+
+> `--force` 会用本仓库覆盖远端仓库的初始提交（适用于全新仓库，无害）。
+> 若想保留远端初始提交，改为先 `git pull --rebase --allow-unrelated-histories origin main` 再 `git push -u origin main`。
+
+### 认证方式（GitHub 已停用密码登录，需用 Personal Access Token）
+1. 打开 GitHub → 右上角头像 → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)** → **Generate new token (classic)**。
+2. 勾选 `repo`（全选 repo 下子项），过期时间按需设置，点击 **Generate token**。
+3. **复制生成的 token**（只显示一次）。
+4. 执行 `git push` 时：
+   - Username 填：`QQYB-nn`
+   - Password 处**粘贴上面的 token**（输入时不显示，粘贴后回车即可）。
+
+推送成功后，即可在 Render / Railway 关联该仓库完成部署（见上方「线上部署」章节）。
