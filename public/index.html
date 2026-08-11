@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WorkTable · 工作台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%234f46e5'/%3E%3Cpath d='M6 14l4-4 3 3 5-6' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<!-- ============ 登录 / 注册 ============ -->
+<div class="auth" id="auth" style="display:none">
+  <div class="auth-side">
+    <div class="auth-brand">
+      <span class="auth-brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l4-4 3 3 5-6"/></svg>
+      </span>
+      <span>WorkTable</span>
+    </div>
+    <div class="auth-hero">
+      <h1>让团队的每一份工作<br>都有迹可循</h1>
+      <p>统一的任务看板、项目管理与知识沉淀平台。支持多成员注册协作，前台展示与后台管理一站搞定。</p>
+      <div class="auth-feats">
+        <span class="auth-feat">📋 工作看板拖拽管理</span>
+        <span class="auth-feat">🗂 多项目分组</span>
+        <span class="auth-feat">📝 知识笔记沉淀</span>
+        <span class="auth-feat">⚙️ 可视化后台</span>
+      </div>
+    </div>
+    <div class="auth-foot">© WorkTable 工作台 · 第一版演示</div>
+  </div>
+
+  <div class="auth-main">
+    <div class="auth-box">
+      <h2>欢迎使用</h2>
+      <p class="sub">登录或注册一个新账号，开始管理工作内容</p>
+
+      <div class="auth-tabs">
+        <button class="on" data-tab="login">登录</button>
+        <button data-tab="register">注册</button>
+      </div>
+
+      <div class="auth-alert" id="auth-alert"></div>
+
+      <form id="form-login">
+        <div class="field"><label>账号</label><input class="input" name="account" placeholder="用户名或邮箱" required></div>
+        <div class="field"><label>密码</label><input class="input" type="password" name="password" placeholder="请输入密码" required></div>
+        <button class="btn btn-primary btn-block" type="submit">登录</button>
+      </form>
+
+      <form id="form-register" style="display:none">
+        <div class="field"><label>用户名</label><input class="input" name="username" placeholder="2-20 个字符" required></div>
+        <div class="field"><label>邮箱</label><input class="input" type="email" name="email" placeholder="用于找回账号" required></div>
+        <div class="field"><label>密码</label><input class="input" type="password" name="password" placeholder="至少 6 位" required></div>
+        <div class="form-row">
+          <div class="field"><label>昵称</label><input class="input" name="name" placeholder="选填"></div>
+          <div class="field"><label>部门</label><input class="input" name="department" placeholder="选填"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">注册并进入</button>
+      </form>
+
+      <div class="auth-hint" id="auth-hint">
+        <b>体验提示：</b>若已部署后端，可直接用管理员账号登录 —— 账号 <b>admin</b> / 密码 <b>admin123</b>（首次启动自动创建）。未部署后端时，注册的数据仅保存在本机浏览器。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 应用主体 ============ -->
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <span class="sb-mark">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14l4-4 3 3 5-6"/></svg>
+      </span>
+      <b>WorkTable</b>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-group">工作</div>
+      <button class="sb-item on" data-view="dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg> 工作台</button>
+      <button class="sb-item" data-view="board"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg> 工作看板</button>
+      <button class="sb-item" data-view="projects"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-7l-2-2H5a2 2 0 0 0-2 2z"/></svg> 项目管理</button>
+      <button class="sb-item" data-view="notes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2"/></svg> 知识笔记</button>
+      <div class="sb-group">系统</div>
+      <button class="sb-item" data-view="admin" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> 后台管理</button>
+    </nav>
+    <div class="sb-foot">
+      <button class="sb-user" id="user-btn">
+        <span class="avatar" id="user-avatar">U</span>
+        <span class="sb-user-info"><b id="user-name">用户</b><span id="user-dept">部门</span></span>
+        <span class="sb-badge" id="user-role" style="margin-left:6px">成员</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="mask" id="mask"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" id="menu-toggle">${ICON.menu}</button>
+      <div>
+        <h1 id="page-title">工作台</h1>
+        <div class="crumb" id="page-crumb">首页</div>
+      </div>
+      <div class="topbar-right">
+        <span class="tag tag-brand" id="mode-tag" style="display:none">本地模式</span>
+        <button class="icon-btn" id="bell-btn" title="公告">${ICON.bell}</button>
+        <button class="btn btn-danger btn-sm" id="logout-btn">退出</button>
+      </div>
+    </header>
+    <div class="page" id="page"></div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="toasts" id="toasts"></div>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/app.js"></script>
+</body>
+</html>

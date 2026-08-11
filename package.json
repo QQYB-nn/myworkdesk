@@ -1,0 +1,19 @@
+{
+  "name": "worktable",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WorkTable 工作台 - 团队工作内容统一管理平台（前台 + 后台管理 + 多用户注册登录）",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "render": {
+    "buildCommand": "echo skip-build",
+    "startCommand": "node server/index.js"
+  }
+}
