@@ -1,19 +1,20 @@
 # Render 部署配置（Blueprint）
-# 用法：在 Render 控制台 "New" → "Blueprint" → 关联本仓库即可，无需手动填命令。
+# 用法：Render 控制台 "New" → "Blueprint" → 关联本仓库。
 services:
   - type: web
     name: worktable
     runtime: node
     plan: free
-    # 零依赖项目无需安装/构建，平台仍会执行 npm ci 的等价步骤，
-    # 但 package.json 没有 dependencies，因此很快完成。
-    buildCommand: "echo 'no build needed'"
-    startCommand: "node server/index.js"
-    # Render 会自动注入 PORT 环境变量，server/index.js 已兼容
+    buildCommand: "npm install"          # 安装 pg 等依赖
+    startCommand: "node server/index.js"  # Render 自动注入 PORT
     envVars:
       - key: NODE_VERSION
         value: "20"
       - key: JWT_SECRET
-        generateValue: true   # 平台自动生成随机密钥；也可在控制台改为固定值
+        generateValue: true              # 平台自动生成随机密钥
       - key: HOST
         value: "0.0.0.0"
+      # 生产持久化必填：部署后在 Render 控制台 Environment 把下面空值替换为 PostgreSQL 连接串
+      # 推荐 Neon 免费 PG（https://neon.tech）。留空 = 回退 JSON 文件模式（免费实例重启会丢数据）。
+      - key: DATABASE_URL
+        value: ""

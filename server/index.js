@@ -8,7 +8,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import {
-  getDB, save, uid, hashPassword, verifyPassword, log,
+  load, getDB, save, uid, hashPassword, verifyPassword, log, getMode,
 } from './store.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -152,7 +152,7 @@ async function api(req, res, url) {
   const method = req.method;
   const db = getDB();
 
-  if (group === 'health') return ok(res, { status: 'up', time: new Date().toISOString() });
+  if (group === 'health') return ok(res, { status: 'up', time: new Date().toISOString(), db: getMode() });
 
   /* -------- 认证 -------- */
   if (group === 'auth') {
@@ -406,7 +406,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-getDB();
+await load();
 server.listen(PORT, HOST, () => {
   console.log(`\n  WorkTable 工作台已启动`);
   console.log(`  本地访问: http://localhost:${PORT}`);

@@ -1,7 +1,9 @@
 # Railway 部署配置
 # 用法：railway 控制台 "New Project" → "Deploy from GitHub repo"，
 # 或安装 Railway CLI 后在本目录执行 `railway up`。
-# Railway 会自动读取 package.json 的 start 脚本并注入 PORT。
+# Railway 自动读取 package.json 的 start 脚本并注入 PORT。
+# 持久化：在同一项目里 Add 一个 PostgreSQL 服务，Railway 会自动注入 DATABASE_URL，
+# 应用检测到后即启用 PostgreSQL 模式（无需在此手动填连接串）。
 
 [deploy]
 startCommand = "node server/index.js"
@@ -11,9 +13,8 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
 
 [build]
-# 零依赖，跳过构建
 builder = "nixpacks"
-buildCommand = "echo 'no build needed'"
+buildCommand = "npm install"
 
 [variables]
 JWT_SECRET = "change-me-in-railway-dashboard"

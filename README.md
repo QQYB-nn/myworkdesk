@@ -36,46 +36,50 @@ node server/index.js
 - `PORT`：端口（默认 8080）
 - `HOST`：监听地址（默认 0.0.0.0）
 - `JWT_SECRET`：登录令牌签名密钥（生产务必修改）
-- `DATA_DIR`：数据存储目录（默认 `server/data`）
+- `DATABASE_URL`：PostgreSQL 连接串。**设置了就走 PostgreSQL 持久化**；不设则回退 JSON 文件（`DATA_DIR` 下）。
+- `DATA_DIR`：JSON 回退模式的数据目录（默认 `server/data`）
 
+> 本地 JSON 模式无需安装依赖，直接 `node server/index.js` 即可；若要连 PostgreSQL，先 `npm install` 再设置 `DATABASE_URL`。
 > 默认管理员账号：`admin` / `admin123`（首次启动自动写入）。请登录后尽快在「个人设置」中修改密码。
 
 ---
 
 ## ☁️ 线上部署
 
-整套应用是「单进程 Node 服务 + 静态前端」，无需数据库、零第三方依赖，**任意支持 Node 的环境都能跑**。
+整套应用是「Node 服务 + 静态前端」，存储层支持 **PostgreSQL 持久化**（设 `DATABASE_URL` 即启用），不设则回退 JSON 文件。部署需执行 `npm install`（安装 `pg` 依赖）。
 
 ### 方式一：平台托管（推荐，最省心）⭐
 
 无需自己买服务器、装环境，也不用管 HTTPS —— 平台自动提供子域名 + 免费证书，多人可直接注册协作。
 
-#### Render
-1. 把本目录推送到一个 GitHub 仓库。
-2. 登录 [render.com](https://render.com) → **New** → **Blueprint** → 关联该仓库。
-3. 平台会读取 `render.yaml`：自动用 `node server/index.js` 启动，并注入 `PORT` 与随机 `JWT_SECRET`。
-4. 部署完成后，Render 会给你一个 `xxx.onrender.com` 的地址，**默认就是 HTTPS**，直接发给同事即可注册使用。
-
-> 也可不上传 `render.yaml`，手动建 Web Service：Runtime 选 Node，Build Command 填 `echo skip`、Start Command 填 `node server/index.js`，其余默认即可。
-
-#### Railway
+#### Railway（自带免费 PostgreSQL，最省心）⭐
 1. 仓库推到 GitHub 后，在 [railway.app](https://railway.app) 点 **New Project → Deploy from GitHub repo**。
-2. 平台读取 `railway.toml`：自动 `node server/index.js` 启动，注入 `PORT`，健康检查走 `/api/health`。
-3. 完成后在 Settings 里打开 **Generate Domain**，即得到一个 `xxx.up.railway.app` 的 HTTPS 地址。
+2. 在项目里点 **New → Add Database → PostgreSQL**：Railway 会**自动注入 `DATABASE_URL`**，应用检测到后即启用 PostgreSQL 持久化（`railway.toml` 已配 `npm install` 构建 + `/api/health` 健康检查）。
+3. 在 Web 服务的 Settings 里打开 **Generate Domain**，得到 `xxx.up.railway.app` 的 HTTPS 地址。
+> Railway 给新账号免费试用额度，足以跑一个小型工作台 + 数据库。
 
-两种平台都**有免费额度可用**；数据仍以 JSON 文件（`server/data/db.json`）形式保存在运行实例中，重启不丢失（注意平台休眠 / 重建实例可能清空文件系统，生产可在控制台挂载磁盘或日后换数据库）。
+#### Render（用免费 Neon PostgreSQL）
+1. 把本目录推送到 GitHub 仓库。
+2. 登录 [render.com](https://render.com) → **New** → **Blueprint** → 关联该仓库：`render.yaml` 会自动用 `npm install` 构建、`node server/index.js` 启动，注入 `PORT` 与随机 `JWT_SECRET`。
+3. **配数据库**：在 [neon.tech](https://neon.tech) 免费注册一个 PostgreSQL，复制连接串；回到 Render 服务的 **Environment**，把 `DATABASE_URL` 的空值替换为该连接串。
+4. 保存触发重新部署，完成后得到 `xxx.onrender.com` 的 HTTPS 地址。
+
+> 不设 `DATABASE_URL` 时应用会回退 JSON 文件模式：Render 免费实例**重启/休眠会清空磁盘**，数据会丢。生产务必设 `DATABASE_URL`。
 
 ### 方式二：云服务器 / 任意 Node 主机
 ```bash
 git clone <repo> && cd worktable
-PORT=8080 JWT_SECRET="你的密钥" node server/index.js
+npm install
+# 用 PostgreSQL：填 DATABASE_URL；否则回退 JSON 文件
+DATABASE_URL="postgresql://user:pass@host:5432/worktable" \
+  PORT=8080 JWT_SECRET="你的密钥" node server/index.js
 ```
 配合 Nginx 反代 + HTTPS 即可对外提供服务（进程建议用 `pm2` 或 `systemd` 守护）。
 
 ### 方式三：纯静态预览（无后端，本地模式）
 直接用任意静态托管（如本工具内置的 CloudStudio / Nginx / GitHub Pages）托管 `public/` 目录即可运行，**多人注册的数据仅保存在各自浏览器**，适合做 UI 演示。
 
-> 数据持久化：所有数据以 JSON 文件形式保存在 `DATA_DIR`（默认 `server/data/db.json`），备份该文件即可。后续如需更高并发，可将 `server/store.js` 换成 MySQL / PostgreSQL / MongoDB，接口层无需改动。
+> 数据持久化：设了 `DATABASE_URL` 走 PostgreSQL（`state` 表存全量状态文档，重启/多实例不丢）；未设则走 JSON 文件（`DATA_DIR` 下 `db.json`，备份该文件即可）。
 
 ---
 
@@ -85,7 +89,7 @@ PORT=8080 JWT_SECRET="你的密钥" node server/index.js
 worktable/
 ├─ server/
 │  ├─ index.js        # 零依赖 Node 服务（静态托管 + REST API）
-│  └─ store.js        # JSON 文件存储层（可平滑替换为数据库）
+│  └─ store.js        # 存储层：PostgreSQL 持久化（有 DATABASE_URL）/ JSON 回退
 ├─ public/
 │  ├─ index.html      # 应用外壳（登录页 + 主界面）
 │  └─ assets/
@@ -99,7 +103,7 @@ worktable/
 ## 🔒 安全建议（生产环境）
 - 修改 `JWT_SECRET`，避免令牌被伪造。
 - 使用 HTTPS 与反代，限制请求频率以防暴力破解。
-- 定期备份 `server/data/db.json`。
+- 定期备份数据：PostgreSQL 模式备份 `state` 表或整库；JSON 模式备份 `server/data/db.json`。
 - 当前密码使用 Node 内置 `scrypt` 加盐哈希，未引入第三方加密库。
 
 ## 📤 推送到 GitHub（首次部署）
