@@ -99,7 +99,7 @@ async function confirmModal(title, message, danger = true) {
 async function refreshAll() {
   const [tasks, projects, notes] = await Promise.all([
     API.backend.tasks.list(), API.backend.projects.list(), API.backend.notes.list(),
-  ]).catch(async () => [[], [], []);
+  ]).catch(async () => [[], [], []]);
   State.tasks = tasks; State.projects = projects; State.notes = notes;
 }
 
